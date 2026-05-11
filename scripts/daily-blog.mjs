@@ -31,8 +31,8 @@ if (!FORCE && existing.some((file) => file.startsWith(`${today}-`) && file.endsW
 
 const redditSignals = await collectRedditSignals();
 const article = await generateArticle(redditSignals);
-const slug = uniqueSlug(`${today}-${slugify(article.slug || article.title)}`, existing);
-const filePath = path.join(BLOG_DIR, `${slug}.md`);
+const slug = uniqueSlug(slugify(article.slug || article.title), existing);
+const filePath = path.join(BLOG_DIR, `${today}-${slug}.md`);
 const markdown = renderMarkdown(article, redditSignals, slug);
 
 if (DRY_RUN) {
@@ -101,7 +101,7 @@ async function generateArticle(signals) {
     redditSignals: signals,
     outputContract: {
       title: 'Maximal 70 Zeichen',
-      slug: 'kurzer URL-Slug ohne Datum',
+      slug: 'kurzer, praeziser URL-Slug ohne Datum, maximal 5 Woerter',
       description: 'Meta Description, maximal 155 Zeichen',
       intro: '2 kurze Absätze',
       sections: '5 bis 7 Abschnitte mit h2 und body Markdown',

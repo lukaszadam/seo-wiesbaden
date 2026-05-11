@@ -1,6 +1,6 @@
 ---
 title: "FAQ Rich Results weg: Was lokale Unternehmen jetzt tun sollten"
-slug: "2026-05-11-faq-rich-results-weg"
+slug: "faq-rich-results-weg"
 description: "Google entfernt FAQ Rich Results. Was bedeutet das fuer lokale Unternehmen, SEO und FAQ-Inhalte? Ein praktischer Leitfaden."
 pubDate: "2026-05-11"
 updatedDate: "2026-05-11"
