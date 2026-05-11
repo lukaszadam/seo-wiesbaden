@@ -12,9 +12,9 @@ on:
           - 'false'
           - 'true'
   schedule:
-    # GitHub Actions uses UTC. Running at 10:00 and 11:00 UTC lets the job
-    # publish at 12:00 Europe/Berlin during daylight saving and standard time.
-    - cron: '0 10,11 * * *'
+    # GitHub Actions uses UTC. Running at 09:00 and 10:00 UTC lets the job
+    # publish at 11:00 Europe/Berlin during daylight saving and standard time.
+    - cron: '0 9,10 * * *'
 
 permissions:
   contents: write
@@ -31,11 +31,11 @@ jobs:
         id: berlin_time
         run: |
           hour="$(TZ=Europe/Berlin date +%H)"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" = "12" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" = "11" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping because it is not 12:00 in Europe/Berlin."
+            echo "Skipping because it is not 11:00 in Europe/Berlin."
           fi
 
       - name: Checkout
@@ -56,6 +56,9 @@ jobs:
       - name: Generate daily blog post
         if: steps.berlin_time.outputs.should_run == 'true'
         env:
+          AI_PROVIDER: ${{ vars.AI_PROVIDER || 'anthropic' }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-5' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.2' }}
           REDDIT_SUBREDDITS: ${{ vars.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,smallbusiness' }}

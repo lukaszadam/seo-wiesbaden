@@ -1,10 +1,12 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
 const SITE = 'https://seo-wiesbaden.de';
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
-const MODEL = process.env.OPENAI_MODEL || 'gpt-5.2';
+const PROVIDER = (process.env.AI_PROVIDER || (process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai')).toLowerCase();
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.2';
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
 const SUBREDDITS = (process.env.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,smallbusiness')
   .split(',')
   .map((item) => item.trim())
@@ -91,10 +93,6 @@ async function fetchRedditListing(subreddit, window) {
 }
 
 async function generateArticle(signals) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('Missing OPENAI_API_KEY. Add it as a GitHub Actions repository secret.');
-  }
-
   const prompt = {
     site: SITE,
     audience: 'lokale Unternehmen in Wiesbaden und im Rhein-Main-Gebiet',
@@ -112,6 +110,28 @@ async function generateArticle(signals) {
     },
   };
 
+  const instructions = [
+    'Du bist ein senioriger SEO-Berater und Redakteur fuer SEO Wiesbaden.',
+    'Schreibe hilfreich, konkret und ohne erfundene Fallzahlen.',
+    'Nutze Reddit nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Reddit-Titel nicht als Fakten dar.',
+    'Waehle ein aktuelles Thema mit erkennbarem Nutzen fuer lokale Unternehmen, nicht nur das lauteste Reddit-Thema.',
+    'Der Artikel soll fuer Menschen geschrieben sein, nicht als SEO-Spam wirken.',
+    'Antworte ausschliesslich mit gueltigem JSON ohne Markdown-Codeblock.',
+  ].join(' ');
+
+  const parsed = PROVIDER === 'anthropic'
+    ? await generateWithAnthropic(instructions, prompt)
+    : await generateWithOpenAI(instructions, prompt);
+
+  validateArticle(parsed);
+  return parsed;
+}
+
+async function generateWithOpenAI(instructions, prompt) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('Missing OPENAI_API_KEY. Add it as a GitHub Actions repository secret or set AI_PROVIDER=anthropic with ANTHROPIC_API_KEY.');
+  }
+
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -119,14 +139,8 @@ async function generateArticle(signals) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: MODEL,
-      instructions: [
-        'Du bist ein senioriger SEO-Berater und Redakteur fuer SEO Wiesbaden.',
-        'Schreibe hilfreich, konkret und ohne erfundene Fallzahlen.',
-        'Nutze Reddit nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Reddit-Titel nicht als Fakten dar.',
-        'Der Artikel soll fuer Menschen geschrieben sein, nicht als SEO-Spam wirken.',
-        'Antworte ausschliesslich mit gueltigem JSON ohne Markdown-Codeblock.',
-      ].join(' '),
+      model: OPENAI_MODEL,
+      instructions,
       input: JSON.stringify(prompt, null, 2),
       max_output_tokens: 4500,
     }),
@@ -139,9 +153,46 @@ async function generateArticle(signals) {
 
   const data = await response.json();
   const text = data.output_text || extractOutputText(data);
-  const parsed = parseJson(text);
-  validateArticle(parsed);
-  return parsed;
+  return parseJson(text, 'OpenAI');
+}
+
+async function generateWithAnthropic(instructions, prompt) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('Missing ANTHROPIC_API_KEY. Add it as a GitHub Actions repository secret.');
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: 4500,
+      system: instructions,
+      messages: [
+        {
+          role: 'user',
+          content: JSON.stringify(prompt, null, 2),
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Anthropic request failed: ${response.status} ${body}`);
+  }
+
+  const data = await response.json();
+  const text = data.content
+    ?.filter((content) => content.type === 'text')
+    ?.map((content) => content.text)
+    ?.join('\n')
+    ?.trim();
+  return parseJson(text, 'Anthropic');
 }
 
 function extractOutputText(data) {
@@ -152,16 +203,16 @@ function extractOutputText(data) {
     ?.trim();
 }
 
-function parseJson(text) {
+function parseJson(text, provider = 'AI provider') {
   if (!text) {
-    throw new Error('OpenAI returned an empty response.');
+    throw new Error(`${provider} returned an empty response.`);
   }
 
   try {
     return JSON.parse(text);
   } catch {
     const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('OpenAI response did not contain JSON.');
+    if (!match) throw new Error(`${provider} response did not contain JSON.`);
     return JSON.parse(match[0]);
   }
 }
