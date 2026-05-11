@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://rankrhein.de',
+  site: 'https://seo-wiesbaden.de',
 });

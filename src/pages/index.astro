@@ -17,27 +17,13 @@
   <meta property="og:title" content="SEO Wiesbaden | SEO Agentur Wiesbaden" />
   <meta property="og:description" content="Professionelle Suchmaschinenoptimierung in Wiesbaden. Messbare Ergebnisse, persönliche Betreuung." />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "name": "SEO Wiesbaden — SEO Agentur Wiesbaden",
     "description": "Professionelle Suchmaschinenoptimierung für Unternehmen in Wiesbaden und dem Rhein-Main-Gebiet",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Wilhelmstraße 1",
-      "addressLocality": "Wiesbaden",
-      "postalCode": "65183",
-      "addressRegion": "Hessen",
-      "addressCountry": "DE"
-    },
     "url": "https://seo-wiesbaden.de",
-    "telephone": "+49 611 000 0000",
-    "email": "hallo@seo-wiesbaden.de",
     "priceRange": "€€",
     "areaServed": ["Wiesbaden", "Mainz", "Frankfurt", "Rhein-Main"],
     "knowsAbout": ["SEO", "Suchmaschinenoptimierung", "Local SEO", "Content Marketing", "Technisches SEO"]
@@ -56,6 +42,7 @@
       <li><a href="#leistungen">Leistungen</a></li>
       <li><a href="#prozess">Ablauf</a></li>
       <li><a href="#ergebnisse">Ergebnisse</a></li>
+      <li><a href="/blog">Blog</a></li>
     </ul>
     <a href="#kontakt" class="nav-cta">Analyse anfragen</a>
     <button class="nav-burger" aria-label="Menü öffnen" id="burger">
@@ -66,6 +53,7 @@
     <a href="#leistungen">Leistungen</a>
     <a href="#prozess">Ablauf</a>
     <a href="#ergebnisse">Ergebnisse</a>
+    <a href="/blog">Blog</a>
     <a href="#kontakt" class="mobile-cta">Kostenlose Analyse anfragen</a>
   </div>
 </nav>
@@ -419,6 +407,10 @@
         <label for="nachricht">Was möchten Sie erreichen?</label>
         <textarea id="nachricht" name="nachricht" rows="4" placeholder="Kurze Beschreibung Ihrer Situation und Ziele..."></textarea>
       </div>
+      <label class="privacy-check">
+        <input type="checkbox" name="datenschutz" required />
+        <span>Ich habe die <a href="/datenschutz">Datenschutzhinweise</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Beantwortung meiner Anfrage einverstanden.</span>
+      </label>
       <button type="submit" class="btn-submit">Kostenlose Analyse anfragen →</button>
     </form>
   </div>
@@ -448,19 +440,14 @@
         <ul>
           <li><a href="#warum-wir">Über uns</a></li>
           <li><a href="#ergebnisse">Ergebnisse</a></li>
+          <li><a href="/blog">Blog</a></li>
           <li><a href="#kontakt">Kontakt</a></li>
         </ul>
       </div>
     </nav>
-    <address class="footer-contact">
-      <strong>Kontakt</strong>
-      <p>Wilhelmstraße 1<br/>65183 Wiesbaden</p>
-      <a href="mailto:hallo@seo-wiesbaden.de">hallo@seo-wiesbaden.de</a>
-      <a href="tel:+496110000000">+49 611 000 0000</a>
-    </address>
   </div>
   <div class="footer-bottom">
-    <p>© 2025 SEO Wiesbaden · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
+    <p>© 2026 SEO Wiesbaden · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
   </div>
 </footer>
 
@@ -508,8 +495,8 @@
     --txt-hi:   #EDE8DF;
     --bdr:      rgba(200,169,110,0.12);
     --bdr-hi:   rgba(200,169,110,0.28);
-    --serif:    'Cormorant Garant', Georgia, serif;
-    --sans:     'Figtree', system-ui, sans-serif;
+    --serif:    Georgia, 'Times New Roman', serif;
+    --sans:     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -898,6 +885,17 @@
   .fg input::placeholder, .fg textarea::placeholder { color: var(--txt-dim); }
   .fg input:focus, .fg textarea:focus { border-color: var(--gold); }
   .fg textarea { resize: vertical; min-height: 110px; }
+  .privacy-check {
+    display: flex; align-items: flex-start; gap: .7rem;
+    margin-top: 1.25rem; font-size: .78rem; line-height: 1.55;
+    color: var(--txt-dim);
+  }
+  .privacy-check input {
+    width: 16px; height: 16px; flex: 0 0 16px; margin-top: .22rem;
+    accent-color: var(--gold);
+  }
+  .privacy-check a { color: var(--gold); border-bottom: 1px solid var(--bdr-hi); }
+  .privacy-check a:hover { border-color: var(--gold); }
   .btn-submit {
     margin-top: 1.75rem; width: 100%;
     background: var(--gold); color: var(--bg);
@@ -915,7 +913,7 @@
   #footer { background: var(--bg); border-top: 1px solid var(--bdr); }
   .footer-wrap {
     max-width: 1200px; margin: 0 auto; padding: 4rem 2rem 3rem;
-    display: grid; grid-template-columns: 2fr 2fr 1.5fr; gap: 4rem;
+    display: grid; grid-template-columns: 2fr 2fr; gap: 4rem;
   }
   .footer-brand .logo { font-size: 1.65rem; display: inline-block; margin-bottom: 1rem; }
   .footer-brand p { font-size: .84rem; color: var(--txt-dim); line-height: 1.65; }
@@ -927,13 +925,6 @@
   .footer-links ul { display: flex; flex-direction: column; gap: .55rem; }
   .footer-links a { font-size: .86rem; color: var(--txt); transition: color .2s; }
   .footer-links a:hover { color: var(--gold); }
-  .footer-contact strong {
-    display: block; font-size: .65rem; letter-spacing: .16em;
-    text-transform: uppercase; color: var(--txt-dim); margin-bottom: 1.2rem;
-  }
-  .footer-contact p { font-size: .86rem; color: var(--txt); line-height: 1.7; margin-bottom: .75rem; }
-  .footer-contact a { display: block; font-size: .86rem; color: var(--txt); margin-bottom: .4rem; transition: color .2s; }
-  .footer-contact a:hover { color: var(--gold); }
   .footer-bottom {
     border-top: 1px solid var(--bdr);
     padding: 1.5rem 2rem;

@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "blog:daily": "node scripts/daily-blog.mjs",
+    "blog:dry-run": "node scripts/daily-blog.mjs --dry-run"
   },
   "dependencies": {
     "astro": "^4.16.18"

@@ -1,0 +1,85 @@
+name: Daily SEO Blog
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Generate even if a post already exists for today'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+  schedule:
+    # GitHub Actions uses UTC. Running at 10:00 and 11:00 UTC lets the job
+    # publish at 12:00 Europe/Berlin during daylight saving and standard time.
+    - cron: '0 10,11 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-seo-blog
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Berlin publishing time
+        id: berlin_time
+        run: |
+          hour="$(TZ=Europe/Berlin date +%H)"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" = "12" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping because it is not 12:00 in Europe/Berlin."
+          fi
+
+      - name: Checkout
+        if: steps.berlin_time.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        if: steps.berlin_time.outputs.should_run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.berlin_time.outputs.should_run == 'true'
+        run: npm ci
+
+      - name: Generate daily blog post
+        if: steps.berlin_time.outputs.should_run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.2' }}
+          REDDIT_SUBREDDITS: ${{ vars.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,smallbusiness' }}
+        run: |
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            npm run blog:daily -- --force
+          else
+            npm run blog:daily
+          fi
+
+      - name: Build site
+        if: steps.berlin_time.outputs.should_run == 'true'
+        run: npm run build
+
+      - name: Commit generated post
+        if: steps.berlin_time.outputs.should_run == 'true'
+        run: |
+          if git diff --quiet -- src/content/blog; then
+            echo "No new blog post to commit."
+            exit 0
+          fi
+
+          git config user.name "seo-wiesbaden-blog-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/blog
+          git commit -m "Add daily SEO blog post"
+          git push
