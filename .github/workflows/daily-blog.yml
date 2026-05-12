@@ -12,9 +12,10 @@ on:
           - 'false'
           - 'true'
   schedule:
-    # GitHub Actions uses UTC. Running at 09:00 and 10:00 UTC lets the job
-    # publish at 11:00 Europe/Berlin during daylight saving and standard time.
-    - cron: '0 9,10 * * *'
+    # GitHub Actions uses UTC. Checking every 15 minutes across 09:00 and
+    # 10:00 UTC covers 11:00 Europe/Berlin in daylight saving and standard
+    # time. The script itself creates at most one post per local day.
+    - cron: '*/15 9,10 * * *'
 
 permissions:
   contents: write
