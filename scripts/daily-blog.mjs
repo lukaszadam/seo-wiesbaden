@@ -240,7 +240,7 @@ function renderMarkdown(article, signals, slug) {
     .join('\n');
   const intro = Array.isArray(article.intro) ? article.intro.join('\n\n') : article.intro;
   const sections = article.sections
-    .map((section) => `## ${section.heading}\n\n${section.body}`)
+    .map((section, index) => `## ${cleanSectionHeading(section.heading, index)}\n\n${section.body}`)
     .join('\n\n');
   const faq = article.faq
     .map((item) => `### ${item.question}\n\n${item.answer}`)
@@ -306,6 +306,23 @@ function cleanPostSlug(input) {
     .replace(/-{2,}/g, '-')
     .replace(/^-+|-+$/g, '')
     .trim() || 'aktuelles-thema';
+}
+
+function cleanSectionHeading(input, index) {
+  const fallbackHeadings = [
+    'Ausgangslage verstehen',
+    'Wichtige Grundlagen',
+    'Praktische Umsetzung',
+    'Haeufige Fehler',
+    'Prioritaeten setzen',
+    'Ergebnisse messen',
+    'Naechste Schritte',
+  ];
+  const heading = String(input ?? '').trim();
+  if (!heading || heading.toLowerCase() === 'undefined') {
+    return fallbackHeadings[index] ?? 'Weitere Hinweise';
+  }
+  return heading;
 }
 
 function uniqueSlug(base, files) {
