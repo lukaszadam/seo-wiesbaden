@@ -292,7 +292,7 @@ function slugify(input) {
 function cleanPostTitle(input) {
   return String(input ?? '')
     .replace(/\bSEO\b/gi, '')
-    .replace(/\bWiesbaden\b/gi, '')
+    .replace(/\bWiesbaden\w*\b/gi, '')
     .replace(/\s+([:|,-])/g, '$1')
     .replace(/([:|,-])\s*$/g, '')
     .replace(/\s{2,}/g, ' ')
@@ -302,7 +302,7 @@ function cleanPostTitle(input) {
 function cleanPostSlug(input) {
   return String(input ?? '')
     .replace(/\bseo\b/gi, '')
-    .replace(/\bwiesbaden\b/gi, '')
+    .replace(/\bwiesbaden\w*\b/gi, '')
     .replace(/-{2,}/g, '-')
     .replace(/^-+|-+$/g, '')
     .trim() || 'aktuelles-thema';
