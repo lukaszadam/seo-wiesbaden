@@ -31,7 +31,9 @@ if (!FORCE && existing.some((file) => file.startsWith(`${today}-`) && file.endsW
 
 const redditSignals = await collectRedditSignals();
 const article = await generateArticle(redditSignals);
-const slug = uniqueSlug(slugify(article.slug || article.title), existing);
+article.title = cleanPostTitle(article.title);
+article.slug = cleanPostSlug(article.slug || article.title);
+const slug = uniqueSlug(slugify(article.slug), existing);
 const filePath = path.join(BLOG_DIR, `${today}-${slug}.md`);
 const markdown = renderMarkdown(article, redditSignals, slug);
 
@@ -100,8 +102,8 @@ async function generateArticle(signals) {
     goal: 'Ein hilfreicher, fachlich sauberer SEO-Blogartikel, der konkrete Fragen aus Reddit in lokaler Beratungssprache beantwortet.',
     redditSignals: signals,
     outputContract: {
-      title: 'Maximal 70 Zeichen',
-      slug: 'kurzer, praeziser URL-Slug ohne Datum, maximal 5 Woerter',
+      title: 'Maximal 70 Zeichen. Darf die Woerter "SEO" und "Wiesbaden" nicht enthalten.',
+      slug: 'kurzer, praeziser URL-Slug ohne Datum, maximal 5 Woerter. Darf "seo" und "wiesbaden" nicht enthalten.',
       description: 'Meta Description, maximal 155 Zeichen',
       intro: '2 kurze Absätze',
       sections: '5 bis 7 Abschnitte mit h2 und body Markdown',
@@ -113,6 +115,7 @@ async function generateArticle(signals) {
   const instructions = [
     'Du bist ein senioriger SEO-Berater und Redakteur fuer SEO Wiesbaden.',
     'Schreibe hilfreich, konkret und ohne erfundene Fallzahlen.',
+    'Der Titel und damit die H1 duerfen weder "SEO" noch "Wiesbaden" enthalten. Diese Begriffe sind fuer die Startseite reserviert.',
     'Nutze Reddit nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Reddit-Titel nicht als Fakten dar.',
     'Waehle ein aktuelles Thema mit erkennbarem Nutzen fuer lokale Unternehmen, nicht nur das lauteste Reddit-Thema.',
     'Der Artikel soll fuer Menschen geschrieben sein, nicht als SEO-Spam wirken.',
@@ -284,6 +287,25 @@ function slugify(input) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 72) || 'seo-blog';
+}
+
+function cleanPostTitle(input) {
+  return String(input ?? '')
+    .replace(/\bSEO\b/gi, '')
+    .replace(/\bWiesbaden\b/gi, '')
+    .replace(/\s+([:|,-])/g, '$1')
+    .replace(/([:|,-])\s*$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim() || 'Aktuelle Fragen aus der Suche';
+}
+
+function cleanPostSlug(input) {
+  return String(input ?? '')
+    .replace(/\bseo\b/gi, '')
+    .replace(/\bwiesbaden\b/gi, '')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .trim() || 'aktuelles-thema';
 }
 
 function uniqueSlug(base, files) {

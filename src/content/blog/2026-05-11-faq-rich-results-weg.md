@@ -67,7 +67,7 @@ Auf Blogartikeln sollten FAQs eher die naechsten Denkfragen abdecken:
 
 So entsteht kein angeklebter FAQ-Block, sondern eine bessere Seite.
 
-## Was bedeutet das fuer SEO Wiesbaden und Local SEO?
+## Was bedeutet das fuer lokale Unternehmen?
 
 Fuer lokale SEO-Projekte ist die Aenderung eigentlich gesund. Sie zwingt Unternehmen dazu, FAQs nicht mehr als kosmetisches Suchergebnis-Feature zu sehen, sondern als Vertrauenssignal.
 

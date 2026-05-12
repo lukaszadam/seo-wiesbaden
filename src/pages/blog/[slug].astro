@@ -20,7 +20,7 @@ const canonical = `https://seo-wiesbaden.de/blog/${post.frontmatter.slug ?? Astr
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{post.frontmatter.title} | SEO Wiesbaden</title>
+  <title>{post.frontmatter.title}</title>
   <meta name="description" content={post.frontmatter.description} />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href={canonical} />
@@ -64,7 +64,7 @@ const canonical = `https://seo-wiesbaden.de/blog/${post.frontmatter.slug ?? Astr
   <main>
     <article>
       <header class="hero">
-        <p class="eyebrow">SEO Ratgeber</p>
+        <p class="eyebrow">Ratgeber</p>
         <h1>{post.frontmatter.title}</h1>
         <p>{post.frontmatter.description}</p>
         <time datetime={post.frontmatter.pubDate}>{new Date(post.frontmatter.pubDate).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}</time>
