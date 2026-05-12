@@ -46,11 +46,11 @@ if (DRY_RUN) {
 
 async function collectRedditSignals() {
   const windows = ['hot', 'top?t=week'];
-  const requests = SUBREDDITS.flatMap((subreddit) =>
+  const jsonRequests = SUBREDDITS.flatMap((subreddit) =>
     windows.map((window) => fetchRedditListing(subreddit, window))
   );
-  const settled = await Promise.allSettled(requests);
-  const posts = settled
+  const jsonSettled = await Promise.allSettled(jsonRequests);
+  let posts = jsonSettled
     .filter((result) => result.status === 'fulfilled')
     .flatMap((result) => result.value)
     .filter((post) => post.title && !post.over_18)
@@ -58,9 +58,24 @@ async function collectRedditSignals() {
     .slice(0, 28);
 
   if (posts.length === 0) {
+    console.warn('Reddit JSON returned no usable topics. Trying Reddit RSS fallback.');
+    const rssRequests = SUBREDDITS.flatMap((subreddit) =>
+      ['hot', 'top'].map((window) => fetchRedditRss(subreddit, window))
+    );
+    const rssSettled = await Promise.allSettled(rssRequests);
+    posts = rssSettled
+      .filter((result) => result.status === 'fulfilled')
+      .flatMap((result) => result.value)
+      .filter((post) => post.title)
+      .sort((a, b) => scorePost(b) - scorePost(a))
+      .slice(0, 28);
+  }
+
+  if (posts.length === 0) {
+    console.warn('Reddit JSON and RSS returned no usable topics. Falling back to a generic seed topic.');
     return [{
       subreddit: 'SEO',
-      title: 'Recurring SEO question: how should local businesses prioritize technical SEO, content, and local trust signals?',
+      title: 'Fallback seed: how should local businesses prioritize technical SEO, content, and local trust signals?',
       url: 'https://www.reddit.com/r/SEO/',
       score: 1,
       comments: 0,
@@ -70,7 +85,7 @@ async function collectRedditSignals() {
   return posts.map((post) => ({
     subreddit: post.subreddit,
     title: post.title,
-    url: `https://www.reddit.com${post.permalink}`,
+    url: post.url ?? `https://www.reddit.com${post.permalink}`,
     score: post.score ?? 0,
     comments: post.num_comments ?? 0,
   }));
@@ -92,6 +107,56 @@ async function fetchRedditListing(subreddit, window) {
 
   const data = await response.json();
   return data?.data?.children?.map((child) => child.data) ?? [];
+}
+
+async function fetchRedditRss(subreddit, window) {
+  const url = `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/${window}/.rss`;
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'seo-wiesbaden-daily-blog/1.0 (topic research)',
+      'Accept': 'application/rss+xml, application/xml, text/xml',
+    },
+  });
+
+  if (!response.ok) {
+    console.warn(`Reddit RSS fetch failed for r/${subreddit}/${window}: ${response.status}`);
+    return [];
+  }
+
+  const xml = await response.text();
+  return parseRedditRss(xml, subreddit);
+}
+
+function parseRedditRss(xml, subreddit) {
+  return [...xml.matchAll(/<entry\b[\s\S]*?<\/entry>/gi)]
+    .map((match) => {
+      const entry = match[0];
+      const title = decodeXml(getXmlText(entry, 'title'));
+      const updated = getXmlText(entry, 'updated') || getXmlText(entry, 'published');
+      const href = entry.match(/<link\b[^>]*href="([^"]+)"/i)?.[1] ?? `https://www.reddit.com/r/${subreddit}/`;
+      return {
+        subreddit,
+        title,
+        url: decodeXml(href),
+        score: updated ? Math.max(1, Math.floor((Date.now() - new Date(updated).valueOf()) / -3600000) + 168) : 1,
+        num_comments: 0,
+      };
+    })
+    .filter((post) => post.title && !/^\s*(comment|comments)\s*$/i.test(post.title));
+}
+
+function getXmlText(xml, tagName) {
+  const match = xml.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
+  return match?.[1]?.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim() ?? '';
+}
+
+function decodeXml(value) {
+  return String(value ?? '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'");
 }
 
 async function generateArticle(signals) {
