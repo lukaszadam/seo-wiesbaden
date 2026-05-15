@@ -12,10 +12,10 @@ on:
           - 'false'
           - 'true'
   schedule:
-    # GitHub Actions uses UTC. Checking every 15 minutes across 10:00 and
-    # 11:00 UTC covers 12:00 Europe/Berlin in daylight saving and standard
-    # time. The script itself creates at most one post per local day.
-    - cron: '*/15 10,11 * * *'
+    # 10:00 UTC = 12:00 CEST (summer) / 11:00 CET (winter).
+    # GitHub Actions can delay scheduled jobs, so we run once and rely on
+    # the script's own idempotency to prevent duplicate posts.
+    - cron: '0 10 * * *'
 
 permissions:
   contents: write
@@ -28,34 +28,19 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Berlin publishing time
-        id: berlin_time
-        run: |
-          hour="$(TZ=Europe/Berlin date +%H)"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" = "12" ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping because it is not 12:00 in Europe/Berlin."
-          fi
-
       - name: Checkout
-        if: steps.berlin_time.outputs.should_run == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Node
-        if: steps.berlin_time.outputs.should_run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Install dependencies
-        if: steps.berlin_time.outputs.should_run == 'true'
         run: npm ci
 
       - name: Generate daily blog post
-        if: steps.berlin_time.outputs.should_run == 'true'
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER || 'anthropic' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -71,11 +56,9 @@ jobs:
           fi
 
       - name: Build site
-        if: steps.berlin_time.outputs.should_run == 'true'
         run: npm run build
 
       - name: Commit generated post
-        if: steps.berlin_time.outputs.should_run == 'true'
         run: |
           git add src/content/blog
 
