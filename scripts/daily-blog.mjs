@@ -7,7 +7,7 @@ const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 const PROVIDER = (process.env.AI_PROVIDER || (process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai')).toLowerCase();
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.2';
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
-const SUBREDDITS = (process.env.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,smallbusiness')
+const SUBREDDITS = (process.env.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,LocalSEO')
   .split(',')
   .map((item) => item.trim())
   .filter(Boolean);
@@ -164,7 +164,7 @@ async function generateArticle(signals) {
     site: SITE,
     audience: 'lokale Unternehmen in Wiesbaden und im Rhein-Main-Gebiet',
     language: 'de-DE',
-    goal: 'Ein hilfreicher, fachlich sauberer SEO-Blogartikel, der konkrete Fragen aus Reddit in lokaler Beratungssprache beantwortet.',
+    goal: 'Ein hilfreicher, fachlich sauberer SEO-Blogartikel ueber Suchmaschinenoptimierung, Google-Sichtbarkeit oder lokales Online-Marketing – der konkrete Fragen aus Reddit in lokaler Beratungssprache beantwortet.',
     redditSignals: signals,
     outputContract: {
       title: 'Maximal 70 Zeichen. Darf die Woerter "SEO" und "Wiesbaden" nicht enthalten.',
@@ -182,7 +182,7 @@ async function generateArticle(signals) {
     'Schreibe hilfreich, konkret und ohne erfundene Fallzahlen.',
     'Der Titel und damit die H1 duerfen weder "SEO" noch "Wiesbaden" enthalten. Diese Begriffe sind fuer die Startseite reserviert.',
     'Nutze Reddit nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Reddit-Titel nicht als Fakten dar.',
-    'Waehle ein aktuelles Thema mit erkennbarem Nutzen fuer lokale Unternehmen, nicht nur das lauteste Reddit-Thema.',
+    'Das Thema MUSS sich auf Suchmaschinenoptimierung, Google-Sichtbarkeit, lokales Online-Marketing oder verwandte digitale Strategien beziehen. Allgemeine Businessthemen ohne SEO-Bezug sind nicht erlaubt.',
     'Der Artikel soll fuer Menschen geschrieben sein, nicht als SEO-Spam wirken.',
     'Antworte ausschliesslich mit gueltigem JSON ohne Markdown-Codeblock.',
   ].join(' ');
