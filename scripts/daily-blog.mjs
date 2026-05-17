@@ -276,13 +276,37 @@ function parseJson(text, provider = 'AI provider') {
     throw new Error(`${provider} returned an empty response.`);
   }
 
-  try {
-    return JSON.parse(text);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error(`${provider} response did not contain JSON.`);
-    return JSON.parse(match[0]);
+  const candidates = [text];
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) candidates.push(match[0]);
+
+  for (const candidate of candidates) {
+    try { return JSON.parse(candidate); } catch {}
+    try { return JSON.parse(escapeJsonStrings(candidate)); } catch {}
   }
+
+  throw new Error(`${provider} response did not contain valid JSON.`);
+}
+
+function escapeJsonStrings(str) {
+  let result = '';
+  let inString = false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch === '"' && (i === 0 || str[i - 1] !== '\\')) {
+      inString = !inString;
+      result += ch;
+    } else if (inString && ch === '\n') {
+      result += '\\n';
+    } else if (inString && ch === '\r') {
+      result += '\\r';
+    } else if (inString && ch === '\t') {
+      result += '\\t';
+    } else {
+      result += ch;
+    }
+  }
+  return result;
 }
 
 function validateArticle(article) {
