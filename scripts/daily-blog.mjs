@@ -14,6 +14,29 @@ const SUBREDDITS = (process.env.REDDIT_SUBREDDITS || 'SEO,bigseo,TechSEO,LocalSE
 const DRY_RUN = process.argv.includes('--dry-run');
 const FORCE = process.argv.includes('--force');
 
+const SEO_FALLBACK_TOPICS = [
+  'Google Business Profile optimieren: Bewertungen sammeln und richtig beantworten',
+  'Core Web Vitals verbessern: Was lokale Unternehmen wirklich wissen müssen',
+  'Lokale Keywords recherchieren: So findet man die richtigen Suchbegriffe',
+  'Schema Markup für lokale Unternehmen: Welche strukturierten Daten wirklich helfen',
+  'Google Helpful Content: Was sich für lokale Websites grundlegend ändert',
+  'Backlinks für lokale Unternehmen: Regionale Verlinkungsstrategien im Rhein-Main-Gebiet',
+  'Mobile-First Indexing: Warum das Smartphone die Google-Rangliste bestimmt',
+  'Google Maps Ranking verbessern: Die wichtigsten lokalen Rankingfaktoren',
+  'On-Page SEO für Dienstleistungsseiten: Titel, Meta-Description und Seitenstruktur',
+  'Seitengeschwindigkeit optimieren: Tools und Maßnahmen für schnellere Ladezeiten',
+  'Duplicate Content vermeiden: Typische SEO-Fehler bei lokalen Websites',
+  'E-E-A-T für lokale Unternehmen: Vertrauen als Google-Rankingfaktor aufbauen',
+  'Google Search Console nutzen: Die wichtigsten Berichte für lokale Websites verstehen',
+  'Wettbewerbsanalyse im lokalen SEO: Von erfolgreichen Mitbewerbern lernen',
+  'Interne Verlinkung optimieren: Seitenstruktur und Link-Verteilung richtig aufbauen',
+  'Featured Snippets gewinnen: Strukturierte Antworten für mehr Sichtbarkeit',
+  'Saisonale SEO-Strategie: Suchanfragen im Jahresverlauf erkennen und nutzen',
+  'Bildoptimierung und Alt-Texte: Wie Bilder zur Google-Sichtbarkeit beitragen',
+  'FAQ-Seiten richtig aufbauen: Struktur und Inhalte für bessere Suchergebnisse',
+  'NAP-Konsistenz: Warum einheitliche Unternehmensdaten im lokalen SEO entscheidend sind',
+];
+
 const today = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Berlin',
   year: 'numeric',
@@ -30,7 +53,21 @@ if (!FORCE && existing.some((file) => file.startsWith(`${today}-`) && file.endsW
 }
 
 const redditSignals = await collectRedditSignals();
-const article = await generateArticle(redditSignals);
+
+let article;
+for (let attempt = 1; attempt <= 3; attempt++) {
+  try {
+    article = await generateArticle(redditSignals);
+    break;
+  } catch (err) {
+    if (attempt < 3) {
+      console.warn(`Article generation attempt ${attempt} failed: ${err.message}. Retrying...`);
+    } else {
+      throw err;
+    }
+  }
+}
+
 article.title = cleanPostTitle(article.title);
 article.slug = cleanPostSlug(article.slug || article.title);
 const slug = uniqueSlug(slugify(article.slug), existing);
@@ -72,14 +109,8 @@ async function collectRedditSignals() {
   }
 
   if (posts.length === 0) {
-    console.warn('Reddit JSON and RSS returned no usable topics. Falling back to a generic seed topic.');
-    return [{
-      subreddit: 'SEO',
-      title: 'Fallback seed: how should local businesses prioritize technical SEO, content, and local trust signals?',
-      url: 'https://www.reddit.com/r/SEO/',
-      score: 1,
-      comments: 0,
-    }];
+    console.warn('Reddit JSON and RSS returned no usable topics. Falling back to AI-generated SEO topics.');
+    return await generateFallbackTopics();
   }
 
   return posts.map((post) => ({
@@ -89,6 +120,65 @@ async function collectRedditSignals() {
     score: post.score ?? 0,
     comments: post.num_comments ?? 0,
   }));
+}
+
+async function generateFallbackTopics() {
+  const instructions = [
+    'Du bist ein SEO-Experte. Generiere eine Liste von 10 aktuellen SEO-Themen fuer lokale Unternehmen.',
+    'Jedes Thema MUSS sich direkt auf Suchmaschinenoptimierung, Google-Sichtbarkeit oder lokales Online-Marketing beziehen.',
+    'Antworte ausschliesslich mit einem gueltigen JSON-Array von Strings. Kein Text, kein Markdown, nur reines JSON-Array.',
+    'Beispiel: ["Thema 1", "Thema 2", ...]',
+  ].join(' ');
+
+  try {
+    let topics = null;
+    if (PROVIDER === 'anthropic' && process.env.ANTHROPIC_API_KEY) {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: ANTHROPIC_MODEL,
+          max_tokens: 800,
+          system: instructions,
+          messages: [{ role: 'user', content: 'Generiere 10 SEO-Themen fuer lokale Unternehmen im Rhein-Main-Gebiet.' }],
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.content?.filter((c) => c.type === 'text').map((c) => c.text).join('').trim();
+        const match = text?.match(/\[[\s\S]*\]/);
+        if (match) topics = JSON.parse(match[0]);
+      }
+    } else if (process.env.OPENAI_API_KEY) {
+      const response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: OPENAI_MODEL, instructions, input: 'Generiere 10 SEO-Themen fuer lokale Unternehmen im Rhein-Main-Gebiet.', max_output_tokens: 800 }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const text = (data.output_text || extractOutputText(data))?.trim();
+        const match = text?.match(/\[[\s\S]*\]/);
+        if (match) topics = JSON.parse(match[0]);
+      }
+    }
+
+    if (Array.isArray(topics) && topics.length > 0) {
+      console.log(`Using ${topics.length} AI-generated SEO fallback topics.`);
+      return topics.map((title) => ({ subreddit: 'seo-fallback', title: String(title), url: SITE, score: 50, comments: 0 }));
+    }
+  } catch (err) {
+    console.warn(`AI fallback topic generation failed: ${err.message}. Using hardcoded topics.`);
+  }
+
+  // Pick 8 random topics from the hardcoded list so each run stays varied
+  const shuffled = [...SEO_FALLBACK_TOPICS].sort(() => Math.random() - 0.5).slice(0, 8);
+  console.log('Using hardcoded SEO fallback topics.');
+  return shuffled.map((title) => ({ subreddit: 'seo-fallback', title, url: SITE, score: 50, comments: 0 }));
 }
 
 async function fetchRedditListing(subreddit, window) {
@@ -181,10 +271,11 @@ async function generateArticle(signals) {
     'Du bist ein senioriger SEO-Berater und Redakteur fuer SEO Wiesbaden.',
     'Schreibe hilfreich, konkret und ohne erfundene Fallzahlen.',
     'Der Titel und damit die H1 duerfen weder "SEO" noch "Wiesbaden" enthalten. Diese Begriffe sind fuer die Startseite reserviert.',
-    'Nutze Reddit nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Reddit-Titel nicht als Fakten dar.',
-    'Das Thema MUSS sich auf Suchmaschinenoptimierung, Google-Sichtbarkeit, lokales Online-Marketing oder verwandte digitale Strategien beziehen. Allgemeine Businessthemen ohne SEO-Bezug sind nicht erlaubt.',
+    'Nutze die Signalthemen nur als Ideengeber. Zitiere keine Reddit-Kommentare und stelle Thementitel nicht als Fakten dar.',
+    'Das Thema MUSS sich direkt auf Suchmaschinenoptimierung, Google-Rankingfaktoren, technisches SEO, lokales Online-Marketing, Google Business Profile, Backlinks, Keywords, Ladezeiten, Core Web Vitals oder verwandte Suchmaschinenthemen beziehen.',
+    'Allgemeine Businessthemen wie Kundenservice, Reaktionszeiten, Team-Management oder Vertrieb ohne direkten SEO-Bezug sind NICHT erlaubt – waehle in diesem Fall ein anderes Thema aus den Signalen.',
     'Der Artikel soll fuer Menschen geschrieben sein, nicht als SEO-Spam wirken.',
-    'Antworte ausschliesslich mit gueltigem JSON ohne Markdown-Codeblock.',
+    'WICHTIG: Antworte AUSSCHLIESSLICH mit einem reinen JSON-Objekt. Kein einleitender Text, keine Erklaerung, kein Markdown-Codeblock, keine Backticks. Nur das rohe JSON-Objekt beginnend mit { und endend mit }.',
   ].join(' ');
 
   const parsed = PROVIDER === 'anthropic'
