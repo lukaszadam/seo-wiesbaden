@@ -1,4 +1,9 @@
 ---
+const postModules = (import.meta as any).glob('../content/blog/*.md', { eager: true });
+const recentPosts = Object.values(postModules)
+  .filter((p: any) => p.frontmatter?.draft !== true)
+  .sort((a: any, b: any) => new Date(b.frontmatter.pubDate).valueOf() - new Date(a.frontmatter.pubDate).valueOf())
+  .slice(0, 3) as any[];
 ---
 <!DOCTYPE html>
 <html lang="de">
@@ -196,6 +201,60 @@
   </div>
 </section>
 
+<!-- PREISE -->
+<section id="preise">
+  <div class="section-wrap">
+    <header class="section-header fade-up">
+      <div>
+        <p class="sec-tag"><span class="tag-line"></span>Transparente Preise</p>
+        <h2 class="sec-title">Was kostet SEO<br/>in Wiesbaden?</h2>
+      </div>
+    </header>
+    <div class="preise-grid">
+      <div class="preis-card fade-up">
+        <p class="preis-label">Starter</p>
+        <div class="preis-price">ab 490 <span>€/Mo.</span></div>
+        <p class="preis-desc">Für lokale Einzelunternehmer und kleine Betriebe, die in Wiesbaden sichtbarer werden wollen.</p>
+        <ul class="preis-list">
+          <li>Google Business Profil-Optimierung</li>
+          <li>Lokale Keyword-Recherche</li>
+          <li>Technischer Basis-Audit</li>
+          <li>Monatliches Reporting</li>
+        </ul>
+        <a href="#kontakt" class="preis-cta">Anfragen →</a>
+      </div>
+      <div class="preis-card preis-featured fade-up" style="animation-delay:.1s">
+        <span class="preis-badge">Beliebt</span>
+        <p class="preis-label">Professional</p>
+        <div class="preis-price">ab 890 <span>€/Mo.</span></div>
+        <p class="preis-desc">Für wachsende Unternehmen, die langfristig auf Seite 1 ranken und organischen Traffic in Kunden umwandeln wollen.</p>
+        <ul class="preis-list">
+          <li>Alles aus Starter</li>
+          <li>On-Page &amp; Content SEO</li>
+          <li>Backlink-Aufbau</li>
+          <li>Wettbewerbsanalyse</li>
+          <li>Monatliche Strategie-Calls</li>
+        </ul>
+        <a href="#kontakt" class="preis-cta preis-cta-gold">Anfragen →</a>
+      </div>
+      <div class="preis-card fade-up" style="animation-delay:.2s">
+        <p class="preis-label">Premium</p>
+        <div class="preis-price">ab 1.490 <span>€/Mo.</span></div>
+        <p class="preis-desc">Für Unternehmen, die vollumfängliche SEO-Betreuung und maximale Sichtbarkeit im Rhein-Main-Gebiet anstreben.</p>
+        <ul class="preis-list">
+          <li>Alles aus Professional</li>
+          <li>Technisches SEO &amp; Core Web Vitals</li>
+          <li>Content-Produktion</li>
+          <li>Dedizierter Ansprechpartner</li>
+          <li>Quartals-Strategie &amp; Roadmap</li>
+        </ul>
+        <a href="#kontakt" class="preis-cta">Anfragen →</a>
+      </div>
+    </div>
+    <p class="preise-hint fade-up">Keine Mindestvertragslaufzeit. Individuelle Pakete auf Anfrage.</p>
+  </div>
+</section>
+
 <!-- WARUM WIR -->
 <section id="warum-wir">
   <div class="section-wrap warum-wrap">
@@ -203,7 +262,7 @@
       <span class="sec-num-block" aria-hidden="true">02</span>
       <p class="sec-tag"><span class="tag-line"></span>Warum SEO Wiesbaden</p>
       <h2 class="sec-title">Lokal verwurzelt.<br/>Digital exzellent.</h2>
-      <p class="warum-lead">Als Wiesbadener Agentur kennen wir den lokalen Markt, die Branchen und die Erwartungen Ihrer Kunden — von der Taunusspitze bis zur Rheinpromenade.</p>
+      <p class="warum-lead">Ich bin Lukasz — SEO-Berater aus Wiesbaden. Seit über 8 Jahren helfe ich lokalen Unternehmen im Rhein-Main-Gebiet dabei, bei Google gefunden zu werden. Persönlich, transparent und mit messbaren Ergebnissen.</p>
       <ul class="warum-list">
         <li>
           <div class="check-icon" aria-hidden="true">✓</div>
@@ -374,6 +433,97 @@
           </div>
         </div>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- STIMMEN -->
+<section id="stimmen">
+  <div class="section-wrap">
+    <header class="section-header fade-up">
+      <div>
+        <p class="sec-tag"><span class="tag-line"></span>Kundenstimmen</p>
+        <h2 class="sec-title">Was Kunden über<br/>SEO Wiesbaden sagen</h2>
+      </div>
+    </header>
+    <div class="stimmen-grid">
+      <blockquote class="stimme-card fade-up">
+        <div class="stimme-quote" aria-hidden="true">"</div>
+        <p>Suchmaschinenmarketing war bei uns ein voller Erfolg. Danke an Lukasz und das Team. Das habt ihr echt gut gemacht!</p>
+        <footer>
+          <strong>Dani</strong>
+          <span>Kunde, Wiesbaden</span>
+        </footer>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-wrap">
+    <header class="section-header fade-up">
+      <div>
+        <p class="sec-tag"><span class="tag-line"></span>Häufige Fragen</p>
+        <h2 class="sec-title">Ihre Fragen zu<br/>SEO Wiesbaden</h2>
+      </div>
+    </header>
+    <div class="faq-list" itemscope itemtype="https://schema.org/FAQPage">
+      <details class="faq-item fade-up" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary itemprop="name">Wie lange dauert es, bis SEO Ergebnisse sichtbar werden?</summary>
+        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Erste messbare Verbesserungen sind oft nach 3–4 Monaten sichtbar. Nachhaltige Top-Rankings entstehen in der Regel nach 6–12 Monaten. SEO ist eine langfristige Investition — die Ergebnisse bleiben dafür dauerhaft und wachsen weiter.</p>
+        </div>
+      </details>
+      <details class="faq-item fade-up" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary itemprop="name">Was kostet SEO in Wiesbaden?</summary>
+        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Unsere Pakete starten ab 490 €/Monat für lokale SEO-Maßnahmen und gehen bis 1.490 €/Monat für Full-Service-Betreuung. Der genaue Preis hängt von Ihrer Ausgangssituation, dem Wettbewerb und Ihren Zielen ab — gerne erstellen wir ein individuelles Angebot.</p>
+        </div>
+      </details>
+      <details class="faq-item fade-up" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary itemprop="name">Brauche ich SEO, wenn ich bereits Google Ads schalte?</summary>
+        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Ja — Google Ads und SEO ergänzen sich ideal. Ads liefern sofortige Sichtbarkeit, kosten aber bei jedem Klick. SEO baut organische Rankings auf, die dauerhaft Traffic bringen — ohne laufende Klickkosten. Langfristig ist SEO deutlich kosteneffizienter.</p>
+        </div>
+      </details>
+      <details class="faq-item fade-up" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary itemprop="name">Wie messen Sie den SEO-Erfolg?</summary>
+        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Wir tracken organischen Traffic, Keyword-Rankings, Sichtbarkeitsindex und Conversion-Raten. Monatlich erhalten Sie einen klaren Report mit allen relevanten Kennzahlen — verständlich erklärt, ohne Marketing-Sprech.</p>
+        </div>
+      </details>
+      <details class="faq-item fade-up" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary itemprop="name">Arbeiten Sie nur für Unternehmen in Wiesbaden?</summary>
+        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Der Schwerpunkt liegt auf Wiesbaden und dem Rhein-Main-Gebiet — Mainz, Frankfurt, Darmstadt und Umgebung. Lokale Marktkenntnis ist unser klarer Vorteil. Für ausgewählte nationale Projekte sind wir ebenfalls offen.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG VORSCHAU -->
+<section id="blog-vorschau">
+  <div class="section-wrap">
+    <header class="section-header fade-up">
+      <div>
+        <p class="sec-tag"><span class="tag-line"></span>Aus unserem Blog</p>
+        <h2 class="sec-title">SEO-Wissen für<br/>lokale Unternehmen</h2>
+      </div>
+    </header>
+    <div class="blog-grid">
+      {recentPosts.map((post: any) => (
+        <a href={`/blog/${post.frontmatter.slug}`} class="blog-card fade-up">
+          <span class="blog-date">{new Date(post.frontmatter.pubDate).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+          <h3>{post.frontmatter.title}</h3>
+          <p>{post.frontmatter.description}</p>
+          <span class="blog-more">Weiterlesen →</span>
+        </a>
+      ))}
+    </div>
+    <div class="blog-all fade-up">
+      <a href="/blog" class="btn-ghost">Alle Artikel ansehen →</a>
     </div>
   </div>
 </section>
@@ -934,6 +1084,117 @@
   .footer-bottom a { color: var(--txt-dim); transition: color .2s; }
   .footer-bottom a:hover { color: var(--gold); }
 
+  /* ── PREISE ── */
+  #preise { border-top: 1px solid var(--bdr); background: var(--bg-mid); }
+  .preise-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .preis-card {
+    background: var(--bg); border: 1px solid var(--bdr); border-radius: 4px;
+    padding: 2.25rem 2rem; display: flex; flex-direction: column; gap: 0; position: relative;
+    transition: border-color .3s, transform .25s;
+  }
+  .preis-card:hover { border-color: var(--bdr-hi); transform: translateY(-3px); }
+  .preis-featured {
+    background: var(--bg-light); border-color: var(--gold);
+    box-shadow: 0 0 40px rgba(200,169,110,.08);
+  }
+  .preis-badge {
+    position: absolute; top: -1px; right: 1.5rem;
+    background: var(--gold); color: var(--bg);
+    font-size: .62rem; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; padding: .3rem .7rem; border-radius: 0 0 4px 4px;
+  }
+  .preis-label {
+    font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: .75rem;
+  }
+  .preis-price {
+    font-family: var(--serif); font-size: 2.6rem; font-weight: 700;
+    color: var(--txt-hi); line-height: 1; margin-bottom: 1rem;
+  }
+  .preis-price span { font-size: 1rem; color: var(--txt-dim); font-family: var(--sans); font-weight: 400; }
+  .preis-desc { font-size: .86rem; line-height: 1.65; color: var(--txt); margin-bottom: 1.5rem; }
+  .preis-list { display: flex; flex-direction: column; gap: .45rem; margin-bottom: 2rem; flex: 1; }
+  .preis-list li {
+    font-size: .8rem; color: var(--txt-dim);
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .preis-list li::before { content: '—'; color: var(--gold); font-size: .7rem; flex-shrink: 0; }
+  .preis-cta {
+    display: inline-block; margin-top: auto;
+    font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+    color: var(--txt); padding-bottom: 2px;
+    border-bottom: 1px solid var(--bdr-hi); transition: color .2s, border-color .2s;
+  }
+  .preis-cta:hover { color: var(--gold); border-color: var(--gold); }
+  .preis-cta-gold { color: var(--gold); border-color: var(--gold); }
+  .preise-hint {
+    text-align: center; margin-top: 2rem;
+    font-size: .8rem; color: var(--txt-dim); letter-spacing: .03em;
+  }
+
+  /* ── STIMMEN ── */
+  #stimmen { border-top: 1px solid var(--bdr); }
+  .stimmen-grid { display: flex; justify-content: center; }
+  .stimme-card {
+    background: var(--bg-mid); border: 1px solid var(--bdr); border-radius: 4px;
+    padding: 3rem 3.5rem; max-width: 680px; width: 100%; position: relative;
+  }
+  .stimme-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    border-radius: 0 0 4px 4px;
+  }
+  .stimme-quote {
+    font-family: var(--serif); font-size: 5rem; line-height: .8;
+    color: var(--gold); opacity: .4; margin-bottom: .5rem; display: block;
+  }
+  .stimme-card p {
+    font-size: 1.15rem; line-height: 1.75; color: var(--txt-hi);
+    font-style: italic; margin-bottom: 1.75rem;
+  }
+  .stimme-card footer { display: flex; flex-direction: column; gap: .2rem; }
+  .stimme-card footer strong { font-size: .94rem; color: var(--txt-hi); font-family: var(--sans); }
+  .stimme-card footer span { font-size: .78rem; color: var(--txt-dim); letter-spacing: .06em; }
+
+  /* ── FAQ ── */
+  #faq { background: var(--bg-mid); border-top: 1px solid var(--bdr); }
+  .faq-list { display: flex; flex-direction: column; border: 1px solid var(--bdr); border-radius: 4px; overflow: hidden; }
+  .faq-item { border-bottom: 1px solid var(--bdr); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item summary {
+    padding: 1.4rem 1.75rem; cursor: pointer; list-style: none;
+    font-size: 1rem; font-weight: 600; color: var(--txt-hi);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem; transition: background .2s;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after {
+    content: '+'; color: var(--gold); font-size: 1.4rem; font-weight: 300;
+    flex-shrink: 0; transition: transform .25s;
+  }
+  .faq-item[open] summary { background: rgba(200,169,110,.04); }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-answer { padding: 0 1.75rem 1.4rem; }
+  .faq-answer p { font-size: .92rem; line-height: 1.75; color: var(--txt); }
+
+  /* ── BLOG VORSCHAU ── */
+  #blog-vorschau { border-top: 1px solid var(--bdr); }
+  .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .blog-card {
+    background: var(--bg-mid); border: 1px solid var(--bdr); border-radius: 4px;
+    padding: 2rem; display: flex; flex-direction: column; gap: .75rem;
+    transition: border-color .3s, transform .25s;
+  }
+  .blog-card:hover { border-color: var(--bdr-hi); transform: translateY(-3px); }
+  .blog-date { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+  .blog-card h3 {
+    font-family: var(--serif); font-size: 1.2rem; font-weight: 600;
+    color: var(--txt-hi); line-height: 1.3;
+  }
+  .blog-card p { font-size: .86rem; line-height: 1.65; color: var(--txt); flex: 1; }
+  .blog-more { font-size: .8rem; font-weight: 600; color: var(--gold); margin-top: .5rem; }
+  .blog-all { display: flex; justify-content: center; margin-top: 2.5rem; }
+
   /* ── FADE-UP ANIMATIONS ── */
   .fade-up {
     opacity: 0; transform: translateY(28px);
@@ -949,6 +1210,9 @@
     .prozess-grid { grid-template-columns: 1fr 1fr; border-right: 1px solid var(--bdr); }
     .pstep:nth-child(2), .pstep:nth-child(4) { border-right: 1px solid var(--bdr); }
     .pstep:nth-child(1), .pstep:nth-child(2) { border-bottom: 1px solid var(--bdr); }
+    .preise-grid { grid-template-columns: 1fr 1fr; }
+    .preise-grid .preis-card:last-child { grid-column: 1 / -1; }
+    .blog-grid { grid-template-columns: 1fr 1fr; }
   }
 
   @media (max-width: 768px) {
@@ -963,6 +1227,10 @@
     .prozess-grid { grid-template-columns: 1fr; border-right: 1px solid var(--bdr); }
     .pstep { border-right: 1px solid var(--bdr); border-bottom: 1px solid var(--bdr); }
     .results-grid { grid-template-columns: 1fr; }
+    .preise-grid { grid-template-columns: 1fr; }
+    .preise-grid .preis-card:last-child { grid-column: auto; }
+    .blog-grid { grid-template-columns: 1fr; }
+    .stimme-card { padding: 2rem 1.75rem; }
     .form-row { grid-template-columns: 1fr; }
     .footer-wrap { grid-template-columns: 1fr; gap: 2.5rem; }
     .footer-links { grid-template-columns: 1fr 1fr; }
