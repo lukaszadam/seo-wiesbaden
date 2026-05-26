@@ -1136,25 +1136,27 @@ const recentPosts = Object.values(postModules)
   #stimmen { border-top: 1px solid var(--bdr); }
   .stimmen-grid { display: flex; justify-content: center; }
   .stimme-card {
-    background: var(--bg-mid); border: 1px solid var(--bdr); border-radius: 4px;
-    padding: 3rem 3.5rem; max-width: 680px; width: 100%; position: relative;
+    background: var(--bg-mid); border: 1px solid var(--bdr-hi); border-radius: 6px;
+    padding: 5rem 6rem; max-width: 900px; width: 100%; position: relative;
+    text-align: center;
   }
   .stimme-card::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--gold), transparent);
-    border-radius: 0 0 4px 4px;
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    border-radius: 0 0 6px 6px;
   }
   .stimme-quote {
-    font-family: var(--serif); font-size: 5rem; line-height: .8;
-    color: var(--gold); opacity: .4; margin-bottom: .5rem; display: block;
+    font-family: var(--serif); font-size: 8rem; line-height: .7;
+    color: var(--gold); opacity: .3; margin-bottom: 1rem; display: block;
   }
   .stimme-card p {
-    font-size: 1.15rem; line-height: 1.75; color: var(--txt-hi);
-    font-style: italic; margin-bottom: 1.75rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.75rem); line-height: 1.65; color: var(--txt-hi);
+    font-family: var(--serif); font-style: italic; margin-bottom: 2.5rem;
+    font-weight: 400;
   }
-  .stimme-card footer { display: flex; flex-direction: column; gap: .2rem; }
-  .stimme-card footer strong { font-size: .94rem; color: var(--txt-hi); font-family: var(--sans); }
-  .stimme-card footer span { font-size: .78rem; color: var(--txt-dim); letter-spacing: .06em; }
+  .stimme-card footer { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+  .stimme-card footer strong { font-size: 1rem; color: var(--txt-hi); font-family: var(--sans); }
+  .stimme-card footer span { font-size: .8rem; color: var(--txt-dim); letter-spacing: .08em; text-transform: uppercase; }
 
   /* ── FAQ ── */
   #faq { background: var(--bg-mid); border-top: 1px solid var(--bdr); }
@@ -1230,7 +1232,7 @@ const recentPosts = Object.values(postModules)
     .preise-grid { grid-template-columns: 1fr; }
     .preise-grid .preis-card:last-child { grid-column: auto; }
     .blog-grid { grid-template-columns: 1fr; }
-    .stimme-card { padding: 2rem 1.75rem; }
+    .stimme-card { padding: 2.5rem 2rem; }
     .form-row { grid-template-columns: 1fr; }
     .footer-wrap { grid-template-columns: 1fr; gap: 2.5rem; }
     .footer-links { grid-template-columns: 1fr 1fr; }
